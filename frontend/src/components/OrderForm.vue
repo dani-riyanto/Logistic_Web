@@ -45,19 +45,25 @@ const menuOptions = computed(() => {
 
 // 4. Mencari harga berdasarkan ID menu yang dipilih dari database
 const selectedMenuPrice = computed(() => {
-  const selected = daftarMenu.value.find(m => m.id === form.menu_id)
+  // Gunakan '==' (dua sama dengan) agar angka dan teks bisa dicocokkan
+  const selected = daftarMenu.value.find(m => m.id == form.menu_id)
   return selected ? selected.harga : 0
 })
-
 const totalPriceFormatted = computed(() => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(selectedMenuPrice.value * form.quantity))
 
 const validate = () => {
   let valid = true
   errors.customer_name = ''
   errors.quantity = ''
+  
   if (!form.customer_name.trim()) { errors.customer_name = 'Nama pelanggan wajib diisi'; valid = false }
   if (form.quantity < 1) { errors.quantity = 'Jumlah minimal 1'; valid = false }
-  if (!form.menu_id) { alert('Pilih menu terlebih dahulu!'); valid = false }
+  
+  // pengecekan harga
+  if (!form.menu_id || selectedMenuPrice.value <= 0) { 
+    alert('Pilih menu terlebih dahulu!'); 
+    valid = false 
+  }
   return valid
 }
 

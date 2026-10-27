@@ -54,10 +54,17 @@ const formatPrice = (price) => {
       </div>
       <p class="font-serif text-lg text-primary tabular-nums">Rp {{ formatPrice(order.total_price) }}</p>
     </div>
+    <div class="...">
+  {{ order.menu_item?.nama || 'Menu dihapus' }} 
+</div>
 
+<!-- Tampilkan Harga -->
+<div class="...">
+  Rp {{ order.total_price.toLocaleString('id-ID') }}
+</div>
     <div class="mt-4 flex flex-wrap items-center justify-end gap-6 border-t border-border pt-3 text-[15px]">
       <button @click="emit('update-order', order)" class="text-muted hover:text-primary...">
-  Ubah (PUT)
+  Ubah
 </button>
       <button type="button" @click="handleDelete" :aria-label="`Hapus pesanan ${props.order.order_number}`"
         class="border-b border-danger pb-1 text-danger transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-danger">
