@@ -1,9 +1,10 @@
 <script setup>
+import { defineProps, defineEmits } from 'vue'
 import SectionHeading from './SectionHeading.vue'
-import OrderItem from './OrderItem.vue'
 import StateLoading from './StateLoading.vue'
-import StateEmpty from './StateEmpty.vue'
 import StateError from './StateError.vue'
+import StateEmpty from './StateEmpty.vue'
+import OrderItem from './OrderItem.vue'
 
 const props = defineProps({
   orders: { type: Array, default: () => [] },
@@ -13,11 +14,23 @@ const props = defineProps({
   activeTab: String
 })
 
-defineEmits(['update:searchQuery', 'update:activeTab', 'retry-fetch', 'delete-order'])
+// HANYA BOLEH ADA SATU defineEmits SEPERTI INI
+const emit = defineEmits([
+  'update:searchQuery', 
+  'update:activeTab', 
+  'retry-fetch', 
+  'delete-order',
+  'update-order' // <-- Pastikan ini ada
+])
+
 const tabs = ['Semua', 'Baru', 'Diproses', 'Selesai']
-const tabClass = tab => props.activeTab === tab
-  ? 'border border-primary bg-primary px-4 py-2 text-sm font-semibold text-white'
-  : 'border border-border bg-white px-4 py-2 text-sm font-semibold text-muted transition-colors hover:border-primary hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary'
+
+const tabClass = (tab) => {
+  const base = 'px-4 py-2 text-sm font-medium transition-colors rounded '
+  return props.activeTab === tab
+    ? base + 'bg-primary text-white'
+    : base + 'border border-border bg-white text-muted hover:border-primary hover:text-primary'
+}
 </script>
 
 <template>
@@ -52,7 +65,14 @@ const tabClass = tab => props.activeTab === tab
       <StateError v-else-if="error" :error-message="error" @retry="$emit('retry-fetch')" />
       <StateEmpty v-else-if="orders.length === 0" />
       <div v-else class="space-y-4">
-        <OrderItem v-for="order in orders" :key="order.id" :order="order" @delete-order="$emit('delete-order', $event)" />
+        <!-- Tambahkan @update-order di sini -->
+        <OrderItem 
+          v-for="order in orders" 
+          :key="order.id" 
+          :order="order" 
+          @delete-order="$emit('delete-order', $event)" 
+          @update-order="$emit('update-order', $event)" 
+        />
       </div>
     </div>
   </div>

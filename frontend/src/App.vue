@@ -6,7 +6,8 @@ import DashboardStats from './components/DashboardStats.vue'
 import OrderForm from './components/OrderForm.vue'
 import OrderList from './components/OrderList.vue'
 import SiteFooter from './components/SiteFooter.vue'
-import { fetchOrders, createOrder, deleteOrder } from './services/api.js'
+import { fetchOrders, createOrder, deleteOrder, updateOrder } from './services/api.js'
+import MenuForm from './components/MenuForm.vue'
 
 const orders = ref([])
 const loading = ref(false)
@@ -76,6 +77,53 @@ const handleDeleteOrder = async (id) => {
     alert(`Gagal menghapus: ${err.message}`)
   }
 }
+const props = defineProps({
+  isSubmitting: Boolean,
+  serverError: String
+})
+
+const handleMenuAdded = () => {
+  // Karena order form mengambil data menu dari database,
+  // kita bisa memaksa reload halaman agar form pesanan mengambil menu terbaru
+  window.location.reload() 
+}
+
+const emit = defineEmits(['create-order'])
+
+// State untuk menyimpan daftar menu dari database
+const daftarMenu = ref([])
+const form = ref({
+  nama_pelanggan: '',
+  menu_id: '',
+  catatan: ''
+})
+
+// Ambil data dari API backend saat komponen ini dirender
+onMounted(async () => {
+  try {
+    const data = await fetchMenus()
+    daftarMenu.value = data
+  } catch (error) {
+    console.error("Gagal load menu:", error)
+  }
+})
+
+const handleUpdateOrder = async (order) => {
+  // Memunculkan prompt untuk mengubah status (Baru, Diproses, Selesai)
+  const newStatus = prompt(`Ubah status untuk ${order.customer_name}:`, order.status)
+  
+  if (newStatus && newStatus !== order.status) {
+    try {
+      // Panggil fungsi API updateOrder (pastikan sudah ada di api.js)
+      await updateOrder(order.id, { status: newStatus })
+      await loadOrders() // Refresh data
+    } catch (err) {
+      alert(`Gagal update: ${err.message}`)
+    }
+  }
+}
+
+// ... (biarkan fungsi submit Anda yang sudah ada) ...
 </script>
 
 <template>
@@ -85,13 +133,29 @@ const handleDeleteOrder = async (id) => {
     <DashboardStats :orders="orders" />
     <main class="bg-white">
       <div class="container grid grid-cols-1 gap-8 py-8 sm:py-10 lg:grid-cols-12">
+        
+        
         <div class="lg:col-span-5 lg:sticky lg:top-6 lg:self-start">
           <OrderForm :is-submitting="isSubmitting" :server-error="serverError" @create-order="handleCreateOrder" />
+          
+       >
+          <MenuForm @menu-added="handleMenuAdded" />
         </div>
+
+    
         <div class="lg:col-span-7">
-          <OrderList :orders="filteredOrders" :loading="loading" :error="error" v-model:searchQuery="searchQuery"
-            v-model:activeTab="activeTab" @retry-fetch="loadOrders" @delete-order="handleDeleteOrder" />
+         <OrderList 
+            :orders="filteredOrders" 
+            :loading="loading" 
+            :error="error" 
+            v-model:searchQuery="searchQuery"
+            v-model:activeTab="activeTab" 
+            @retry-fetch="loadOrders" 
+            @delete-order="handleDeleteOrder" 
+            @update-order="handleUpdateOrder" 
+          />
         </div>
+
       </div>
     </main>
 

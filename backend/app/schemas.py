@@ -3,16 +3,19 @@ from typing import Optional
 
 class SessionCreate(BaseModel):
     customer_name: str = Field(..., min_length=2, description="Nama pelanggan")
-    menu: str = Field(..., description="Pilihan menu dari dropdown")
+    menu_item_id: int = Field(..., description="ID menu yang dipilih") # Ubah ke ID
     quantity: int = Field(..., ge=1, description="Jumlah pesanan (minimal 1)")
     status: str = Field(..., description="Status pesanan: Baru, Diproses, Selesai")
     notes: Optional[str] = Field("", description="Catatan pesanan, bisa kosong")
-    total_price: int = Field(..., ge=0, description="Total harga dalam Rupiah")
+    total_price: float = Field(..., ge=0, description="Total harga dalam Rupiah")
 
 class SessionResponse(SessionCreate):
     id: int
-    order_number: str
-    time: str
+    order_number: Optional[str] = None
+    time: Optional[str] = None
+
+    class Config:
+        from_attributes = True
 
 class MenuCreate(BaseModel):
     nama: str = Field(..., min_length=1, description="Nama menu")
@@ -22,3 +25,5 @@ class MenuCreate(BaseModel):
 
 class MenuResponse(MenuCreate):
     id: int
+    class Config:
+        from_attributes = True

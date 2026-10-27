@@ -2,8 +2,12 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.routers import sessions, menus 
 from app.schemas import MenuCreate, MenuResponse
+from app.database import engine
+from app import models
 
 app = FastAPI(title="Kantin Kampus Training Session API")
+
+models.Base.metadata.create_all(bind=engine)
 
 origins = [
     "http://localhost:3000",

@@ -1,8 +1,9 @@
 <script setup>
+import { computed } from 'vue'
+
 const props = defineProps({
   order: { type: Object, required: true }
 })
-const emit = defineEmits(['delete-order'])
 
 const statusClass = (status) => {
   if (status === 'Baru') return 'border-info/30 bg-info/10 text-info'
@@ -15,6 +16,8 @@ const handleDelete = () => {
     emit('delete-order', props.order.id)
   }
 }
+
+const emit = defineEmits(['delete-order', 'update-order'])
 
 const formatPrice = (price) => {
   let val = price
@@ -53,8 +56,9 @@ const formatPrice = (price) => {
     </div>
 
     <div class="mt-4 flex flex-wrap items-center justify-end gap-6 border-t border-border pt-3 text-[15px]">
-      <button type="button" disabled
-        class="cursor-not-allowed border-b border-muted pb-1 text-muted opacity-60">Ubah (PUT)</button>
+      <button @click="emit('update-order', order)" class="text-muted hover:text-primary...">
+  Ubah (PUT)
+</button>
       <button type="button" @click="handleDelete" :aria-label="`Hapus pesanan ${props.order.order_number}`"
         class="border-b border-danger pb-1 text-danger transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-danger">
         Hapus
